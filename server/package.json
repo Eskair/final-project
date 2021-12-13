@@ -1,5 +1,13 @@
 {
+  "scripts": {
+    "start": "node index.js",
+    "start:dev": "nodemon index.js"
+  },
+  "author": "Coding Beauty",
+  "license": "MIT",
   "dependencies": {
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "firebase-admin": "^10.0.0",
+    "nodemon": "^2.0.15"
   }
 }
