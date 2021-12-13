@@ -128,7 +128,6 @@ export const AuthProvider = ({
 
   const updateAdmin = async (uid: string) => {
     const admin = await getAdmin(uid);
-    console.log(admin);
 
     // update logged in admin
     admin && setAdmin(admin as FirestoreSchool);

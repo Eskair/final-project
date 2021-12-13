@@ -3,7 +3,7 @@ const app = express();
 const port = 8000;
 
 //firebase db
-const { db, Timestamp } = require('./firebaseConfig');
+const { db, Timestamp, FieldValue } = require('./firebaseConfig');
 
 //body parser middleware
 app.use(express.json());
@@ -108,7 +108,7 @@ app.post('/api/classrooms', async (req, res) => {
 app.get('/api/sprints/:uid/:clientId', async (req, res) => {
   const { uid, clientId } = req.params;
   try {
-    //get a classroom doc with a provided email
+    //get all sprint docs
     const sprintRef = await db
       .collection('schools')
       .doc(uid)
@@ -133,7 +133,7 @@ app.get('/api/sprints/:uid/:clientId', async (req, res) => {
 app.get('/api/sprints/:uid/:clientId/:sprintId', async (req, res) => {
   const { uid, clientId, sprintId } = req.params;
   try {
-    //get a classroom doc with a provided email
+    //get a sprint doc with a provided sprint id
     const sprintRef = await db
       .collection('schools')
       .doc(uid)
@@ -157,7 +157,7 @@ app.get('/api/sprints/:uid/:clientId/:sprintId', async (req, res) => {
 app.post('/api/sprints', async (req, res) => {
   const { uid, clientId } = req.body;
   try {
-    //create a new classroom doc with an auto-generated id
+    //create a new sprint doc with an auto-generated id
     const docRef = db
       .collection('schools')
       .doc(uid)
@@ -180,6 +180,133 @@ app.post('/api/sprints', async (req, res) => {
   } catch (err) {
     console.log(err);
     res.status(500).json({ status: 500, message: 'Server error' });
+  }
+});
+
+//update a sprint doc under a client
+app.patch('/api/sprints/:uid/:clientId/:sprintId', async (req, res) => {
+  const { uid, clientId, sprintId } = req.params;
+  const { updatedInfo } = req.body;
+  try {
+    //update a sprint doc with a provided info
+    await db
+      .collection('schools')
+      .doc(uid)
+      .collection('classrooms')
+      .doc(clientId)
+      .collection('sprints')
+      .doc(sprintId)
+      .update({ ...updatedInfo });
+
+    res
+      .status(200)
+      .json({ status: 200, message: `Sprint ${sprintId} updated` });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ status: 500, message: 'Server error' });
+  }
+});
+
+//create a new projection doc
+app.post('/api/projections', async (req, res) => {
+  const { uid, clientId, sprintId } = req.body;
+  try {
+    //get a sprint doc with a provided sprint id
+    const sprintRef = await db
+      .collection('schools')
+      .doc(uid)
+      .collection('classrooms')
+      .doc(clientId)
+      .collection('sprints')
+      .doc(sprintId)
+      .get();
+
+    //get options on the sprint doc
+    const { options } = sprintRef.data();
+
+    const dataInit = options.reduce((acc, cur) => ({ ...acc, [cur]: 0 }), {});
+
+    //create a new projection doc with an auto-generated id
+    const newProjectionRef = db
+      .collection('schools')
+      .doc(uid)
+      .collection('classrooms')
+      .doc(clientId)
+      .collection('sprints')
+      .doc(sprintId)
+      .collection('projections')
+      .doc();
+
+    //initial data format: {[option: string]: 0}
+    //each option count will be updated later
+    await newProjectionRef.set({
+      date: Timestamp.now(),
+      data: dataInit,
+    });
+
+    const data = (await newProjectionRef.get()).id;
+
+    res.status(200).json({ status: 200, data, message: 'Projection created' });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ status: 500, message: 'Server error' });
+  }
+});
+
+//update a projection doc under a sprint
+app.patch(
+  '/api/sprints/:uid/:clientId/:sprintId/:projectionId',
+  async (req, res) => {
+    const { uid, clientId, sprintId, projectionId } = req.params;
+    const { clicked } = req.body;
+    const clickedProp = `data.${clicked}`;
+    try {
+      //update a projection doc with a provided info
+      await db
+        .collection('schools')
+        .doc(uid)
+        .collection('classrooms')
+        .doc(clientId)
+        .collection('sprints')
+        .doc(sprintId)
+        .collection('projections')
+        .doc(projectionId)
+        .update({ [clickedProp]: FieldValue.increment(1) });
+
+      res
+        .status(200)
+        .json({ status: 200, message: `Projection ${projectionId} updated` });
+    } catch (err) {
+      console.log(err);
+      res.status(500).json({ status: 500, message: 'Server error' });
+    }
+  }
+);
+
+//get all projection docs under a sprint
+app.get('/api/:uid/:clientId/:sprintId/projections', async (req, res) => {
+  const { uid, clientId, sprintId } = req.params;
+  try {
+    //get all projection docs under a sprint
+    const projectionRef = await db
+      .collection('schools')
+      .doc(uid)
+      .collection('classrooms')
+      .doc(clientId)
+      .collection('sprints')
+      .doc(sprintId)
+      .collection('projections')
+      .get();
+
+    //retrieve all projection docs data
+    const data = projectionRef.docs.map((projection) => {
+      return { ...projection.data(), id: projection.id };
+    });
+
+    res.status(200).json({ status: 200, data });
+  } catch (err) {
+    console.log(err);
+    res.status(404).json({ status: 404, ...err });
   }
 });
 

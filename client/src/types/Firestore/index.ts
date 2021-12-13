@@ -32,7 +32,8 @@ export type FirestoreSprint = {
   endDate: Timestamp;
 };
 
-export type FirestoreCase = {
+export type FirestoreProjection = {
+  id?: string;
   date: Timestamp;
   data: { [key: string]: number };
 };
@@ -44,4 +45,15 @@ export interface ClientApiProps extends FirestoreClassroom {
 export type SprintApiProps = {
   uid: string;
   clientId: string;
+  sprintId?: string;
+  updatedInfo?: { [key: string]: any };
+};
+
+export type ProjectionApiProps = {
+  uid: string;
+  clientId: string;
+  sprintId: string;
+  projectionId?: string;
+  clicked?: string;
+  updatedInfo?: { [key: string]: any };
 };

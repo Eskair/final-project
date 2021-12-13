@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 type InitialInputValue = {
-  [key: string]: string;
+  [key: string]: any;
 };
 
 export const useInputState = (

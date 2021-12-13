@@ -7,6 +7,7 @@ import LoginPage from './pages/login';
 import RegisterPage from './pages/register';
 import ClassroomPage from './pages/classroom';
 import SprintPage from './pages/sprint';
+import ProjectionPage from './pages/projection';
 
 // auth provider
 import { AuthProvider } from './hooks/useAuth';
@@ -24,7 +25,11 @@ function App() {
             <Route path='/login' element={<LoginPage />} />
             <Route path='/register' element={<RegisterPage />} />
             <Route path='/classroom' element={<ClassroomPage />} />
-            <Route path='/sprint/:sprintId' element={<SprintPage />} />
+            <Route path='/sprints/:sprintId' element={<SprintPage />} />
+            <Route
+              path='/sprints/:sprintId/projections/:projectionId'
+              element={<ProjectionPage />}
+            />
           </Routes>
         </MainLayout>
       </BrowserRouter>

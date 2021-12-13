@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 //hooks
@@ -8,11 +8,13 @@ import { useFetch } from '../../hooks';
 
 //api
 import { createSprint } from '../../api/sprint';
+import { createProjection } from '../../api/projection';
 
 //types
 import { FirestoreSprint } from '../../types/Firestore';
 
 const ClassroomPage = () => {
+  const navigate = useNavigate();
   const { admin, client } = useAuth();
 
   const {
@@ -22,21 +24,38 @@ const ClassroomPage = () => {
   } = useFetch(`/api/sprints/${admin?.uid}/${client}`);
 
   const onAddSprint = async () => {
-    const res = await createSprint({
+    const { status } = await createSprint({
       uid: admin?.uid as string,
       clientId: client as string,
     });
     //update sprints list
-    setRefetchRequested((p) => !p);
+    status === 200 && setRefetchRequested((p) => !p);
   };
 
   useEffect(() => {
+    //refresh sprint data on admin/client change
     setRefetchRequested((p) => !p);
   }, [admin, client]);
 
+  const onStartNewProjection = async (sprintId: string) => {
+    // create a new projection doc
+    const { status, data: projectionId } = await createProjection({
+      uid: admin?.uid as string,
+      clientId: client as string,
+      sprintId,
+    });
+
+    if (status === 200) {
+      //go to the newly created projection view
+      navigate(`/sprints/${sprintId}/projections/${projectionId}`, {
+        replace: true,
+      });
+    }
+  };
+
   //redirect to client login page
   if (!client) {
-    return <Navigate replace to='/' />;
+    navigate('/', { replace: true });
   }
 
   if (loading) {
@@ -51,8 +70,19 @@ const ClassroomPage = () => {
       <CardWrapper>
         {sprints &&
           sprints.map((sprint: FirestoreSprint) => (
-            <Card href={`/sprint/${sprint.id}`} key={sprint.id}>
+            <Card key={sprint.id}>
               {sprint.title}
+              <FlexColumn>
+                <Link href={`/sprints/${sprint.id}`}>Dashboard</Link>
+                <Button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onStartNewProjection(sprint.id);
+                  }}
+                >
+                  New projection
+                </Button>
+              </FlexColumn>
             </Card>
           ))}
       </CardWrapper>
@@ -64,6 +94,13 @@ const ClassroomPage = () => {
 const FlexEnd = styled.div`
   display: flex;
   justify-content: end;
+`;
+
+const FlexColumn = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  justify-content: space-between;
 `;
 
 const Button = styled.button`
@@ -79,18 +116,27 @@ const CardWrapper = styled.div`
   flex-wrap: wrap;
 `;
 
-const Card = styled.a`
-  padding: 20px;
-  border: 2px solid grey;
-  margin: 10px;
-  width: 120px;
-  height: 100px;
+const Link = styled.a`
   text-decoration: none;
-  color: black;
-
+  color: white;
+  padding: 5px 10px;
+  display: inline-block;
+  background: teal;
+  text-align: center;
   &:hover {
     cursor: pointer;
   }
+`;
+
+const Card = styled.div`
+  padding: 20px;
+  border: 2px solid grey;
+  margin: 10px;
+  width: 150px;
+  height: 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 `;
 
 export default ClassroomPage;
