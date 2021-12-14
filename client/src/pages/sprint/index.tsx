@@ -1,21 +1,21 @@
-import { useEffect } from 'react';
-import { Navigate, useParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 
 //hooks
 import { useAuth } from '../../hooks/useAuth';
 import { useFetch, useInputState } from '../../hooks';
 
-//types
-import { FirestoreProjection } from '../../types/Firestore';
-
 //components
-import { Modal, MultiSelector } from '../../components';
+import { Modal, MultiSelector, LineChart } from '../../components';
 
 //api
 import { updateSprint } from '../../api/sprint';
 
 const SprintPage = () => {
+  const navigate = useNavigate();
   const { admin, client } = useAuth();
   const { sprintId } = useParams();
 
@@ -31,12 +31,13 @@ const SprintPage = () => {
     setRefetchRequested: projectionRefetch,
   } = useFetch(`/api/${admin?.uid}/${client}/${sprintId}/projections`);
 
-  const [sprintInfo, handleSprintInfoChange, setSprintInfo] = useInputState({
-    title: '',
-    options: [],
-    start: '',
-    end: '',
-  });
+  const [sprintInfo, handleSprintInfoChange, setSprintInfo] =
+    useInputState(null);
+
+  //date state
+  const [startDate, setStartDate] = useState(new Date());
+
+  const [endDate, setEndDate] = useState(new Date());
 
   useEffect(() => {
     setRefetchRequested((p) => !p);
@@ -45,6 +46,8 @@ const SprintPage = () => {
 
   useEffect(() => {
     sprint && setSprintInfo(sprint);
+    setStartDate(new Date(sprintInfo?.start));
+    setEndDate(new Date(sprintInfo?.end));
   }, [loading, sprint]);
 
   //update options from multiselector
@@ -59,7 +62,7 @@ const SprintPage = () => {
       uid: admin?.uid as string,
       clientId: client as string,
       sprintId,
-      updatedInfo: sprintInfo,
+      updatedInfo: sprintInfo!,
     });
     if (status === 200) {
       console.log('updated');
@@ -70,7 +73,7 @@ const SprintPage = () => {
 
   //redirect to client login page
   if (!client) {
-    return <Navigate replace to='/' />;
+    navigate('/', { replace: true });
   }
 
   //wait until fetching both data
@@ -80,8 +83,10 @@ const SprintPage = () => {
 
   return (
     <>
-      <Flex>
-        <div>{sprintInfo.title}</div>
+      <FlexBetween>
+        <Button onClick={() => navigate('/classroom', { replace: true })}>
+          Go back to classroom
+        </Button>
         <Modal>
           {/* sprint info setting */}
           <Form>
@@ -97,26 +102,45 @@ const SprintPage = () => {
               setSprintOptions={setSprintOptions}
             />
 
+            <DatePicker
+              selected={startDate}
+              onChange={(date: Date) => {
+                setStartDate(date);
+                setSprintInfo({ ...sprintInfo, start: date.toDateString() });
+              }}
+            />
+            <DatePicker
+              selected={endDate}
+              onChange={(date: Date) => {
+                setEndDate(date);
+                setSprintInfo({ ...sprintInfo, end: date.toDateString() });
+              }}
+            />
+
             <FlexEnd>
               <Button onClick={onClickUpdate}>Update</Button>
             </FlexEnd>
           </Form>
         </Modal>
-      </Flex>
-      <CardWrapper>
-        {projections.map((projection: FirestoreProjection) => (
-          <Card key={projection.id}>{projection.id}</Card>
-        ))}
-      </CardWrapper>
+      </FlexBetween>
+      <LineChart
+        projections={projections}
+        sprintOptions={sprintInfo.options}
+        title={sprintInfo.title}
+      />
     </>
   );
 };
 
 //styled
-const Form = styled.form``;
+const Form = styled.form`
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 200px;
+`;
 
 const Input = styled.input`
-  margin-bottom: 10px;
   outline: none;
   border: 1px solid darkgray;
   &:focus {
@@ -138,44 +162,8 @@ const FlexEnd = styled.div`
   justify-content: end;
 `;
 
-const Flex = styled.div`
+const FlexBetween = styled.div`
   display: flex;
   justify-content: space-between;
 `;
-
-const FlexColumn = styled.div`
-  display: flex;
-  flex-direction: column;
-  flex-wrap: wrap;
-  justify-content: space-between;
-`;
-
-const CardWrapper = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-`;
-
-const Link = styled.a`
-  text-decoration: none;
-  color: white;
-  padding: 5px 10px;
-  display: inline-block;
-  background: teal;
-  text-align: center;
-  &:hover {
-    cursor: pointer;
-  }
-`;
-
-const Card = styled.div`
-  padding: 20px;
-  border: 2px solid grey;
-  margin: 10px;
-  width: 150px;
-  height: 120px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-`;
-
 export default SprintPage;

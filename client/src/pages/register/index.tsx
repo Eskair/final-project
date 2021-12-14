@@ -41,7 +41,7 @@ const RegisterPage = () => {
           type='email'
           required
           name='email'
-          value={userInfo.email}
+          value={userInfo?.email}
         />
         <Input
           onChange={handleUserInfoChange}
@@ -49,24 +49,26 @@ const RegisterPage = () => {
           type='password'
           required
           name='password'
-          value={userInfo.password}
+          value={userInfo?.password}
         />
         <Input
           onChange={handleUserInfoChange}
           placeholder='School code'
           required
           name='code'
-          value={userInfo.code}
+          value={userInfo?.code}
         />
         <Button type='submit'>Submit</Button>
       </Wrapper>
-      <Button
-        onClick={async () => {
-          googleSignin && (await googleSignin());
-        }}
-      >
-        Signin with Google
-      </Button>
+      <Wrapper>
+        <Button
+          onClick={async () => {
+            googleSignin && (await googleSignin());
+          }}
+        >
+          Signin with Google
+        </Button>
+      </Wrapper>
     </Center>
   );
 };
@@ -80,6 +82,7 @@ const Center = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-direction: column;
 `;
 const Wrapper = styled.form`
   display: flex;
@@ -95,6 +98,7 @@ const Button = styled.button`
   border: none;
   padding: 10px 5px;
   border-radius: 5px;
+  margin-bottom: 10px;
   &:hover {
     cursor: pointer;
   }

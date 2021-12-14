@@ -26,8 +26,8 @@ export const Modal = ({ children }: any) => {
       bottom: 'auto',
       marginRight: '-50%',
       transform: 'translate(-50%, -50%)',
-      width: '250px',
-      height: '250px',
+      width: '350px',
+      height: '350px',
     },
   };
 
@@ -65,4 +65,5 @@ const Flex = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 10px;
 `;

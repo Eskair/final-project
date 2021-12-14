@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Navigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 
 //hooks
@@ -9,10 +9,9 @@ import { useFetch } from '../../hooks';
 //api
 import { updateProjection } from '../../api/projection';
 
-//types
-import { FirestoreSprint } from '../../types/Firestore';
-
 const ProjectionPage = () => {
+  const navigate = useNavigate();
+
   const { sprintId, projectionId } = useParams();
 
   const { admin, client } = useAuth();
@@ -59,6 +58,16 @@ const ProjectionPage = () => {
             {option}
           </Button>
         ))}
+        {/* end projection and go to the sprint dashboard */}
+        <EndButton
+          onClick={() => {
+            navigate(`/sprints/${sprintId}`, {
+              replace: true,
+            });
+          }}
+        >
+          End Projection
+        </EndButton>
       </FlexColumn>
     </Wrapper>
   );
@@ -84,8 +93,33 @@ const FlexColumn = styled.div`
 
 const Button = styled.button`
   border: none;
-  padding: 5px 10px;
+  padding: 20px 10px;
   margin: 10px 0;
+  &:hover {
+    cursor: pointer;
+  }
+`;
+
+const EndButton = styled.button`
+  border: none;
+  padding: 10px 10px;
+  margin: 10px 0;
+  color: white;
+
+  background: #77a1d3; /* fallback for old browsers */
+  background: -webkit-linear-gradient(
+    to right,
+    #e684ae,
+    #79cbca,
+    #77a1d3
+  ); /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(
+    to right,
+    #e684ae,
+    #79cbca,
+    #77a1d3
+  ); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+
   &:hover {
     cursor: pointer;
   }

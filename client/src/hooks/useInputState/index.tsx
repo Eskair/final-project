@@ -5,9 +5,9 @@ type InitialInputValue = {
 };
 
 export const useInputState = (
-  initialVal: InitialInputValue
+  initialVal: InitialInputValue | null
 ): [
-  InitialInputValue,
+  InitialInputValue | null,
   (
     e:
       | React.ChangeEvent<HTMLInputElement>

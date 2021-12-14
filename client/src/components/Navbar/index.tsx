@@ -29,11 +29,14 @@ const Wrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding: 15px 10px;
+  border-bottom: 1px solid black;
 `;
 
 const StyledLink = styled(NavLink)`
   text-decoration: none;
   color: black;
+  display: block;
   &:hover {
     cursor: pointer;
   }

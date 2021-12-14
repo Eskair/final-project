@@ -23,7 +23,7 @@ export const ClientLoginModal = () => {
     e.preventDefault();
 
     //enter the classroom logic
-    updateClient && (await updateClient(clientInfo.client as string));
+    updateClient && (await updateClient(clientInfo?.client as string));
   };
   return (
     <Center>

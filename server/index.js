@@ -115,6 +115,7 @@ app.get('/api/sprints/:uid/:clientId', async (req, res) => {
       .collection('classrooms')
       .doc(clientId)
       .collection('sprints')
+      .orderBy('createdAt')
       .get();
 
     //retrieve all sprint docs data
@@ -172,8 +173,9 @@ app.post('/api/sprints', async (req, res) => {
     await docRef.set({
       title: 'New Sprint',
       options: [],
-      start: Timestamp.now(),
-      end: '',
+      start: Timestamp.now().toDate().toDateString(),
+      end: Timestamp.now().toDate().toDateString(),
+      createdAt: Timestamp.now().toDate(),
     });
 
     res.status(200).json({ status: 200, message: 'Sprint created' });
@@ -240,7 +242,7 @@ app.post('/api/projections', async (req, res) => {
     //initial data format: {[option: string]: 0}
     //each option count will be updated later
     await newProjectionRef.set({
-      date: Timestamp.now(),
+      date: Timestamp.now().toDate(),
       data: dataInit,
     });
 
@@ -296,11 +298,15 @@ app.get('/api/:uid/:clientId/:sprintId/projections', async (req, res) => {
       .collection('sprints')
       .doc(sprintId)
       .collection('projections')
+      .orderBy('date')
       .get();
 
     //retrieve all projection docs data
     const data = projectionRef.docs.map((projection) => {
-      return { ...projection.data(), id: projection.id };
+      const parsedDate = new Date(
+        projection.data().date.seconds * 1000
+      ).toLocaleDateString();
+      return { ...projection.data(), id: projection.id, date: parsedDate };
     });
 
     res.status(200).json({ status: 200, data });
