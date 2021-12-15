@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
+import { ToastContainer, toast } from 'react-toastify';
 
 //hooks
 import { useAuth } from '../../hooks/useAuth';
@@ -8,6 +9,9 @@ import { useFetch } from '../../hooks';
 
 //api
 import { updateProjection } from '../../api/projection';
+
+//components
+import { Loader } from '../../components';
 
 const ProjectionPage = () => {
   const navigate = useNavigate();
@@ -24,7 +28,7 @@ const ProjectionPage = () => {
 
   useEffect(() => {
     setRefetchRequested((p) => !p);
-  }, [admin, client]);
+  }, [admin, client]); // eslint-disable-line
 
   //increment option count on projection docs
   const onOptionClick = async (clicked: string) => {
@@ -36,40 +40,43 @@ const ProjectionPage = () => {
       clicked,
     });
     if (status === 200) {
-      console.log('success');
+      toast('Thank you!');
     }
   };
 
-  if (!sprint) {
-    return <div>Loading</div>;
+  if (!sprint || loading) {
+    return <Loader />;
   }
 
   return (
-    <Wrapper>
-      <FlexColumn>
-        {sprint.options.map((option: string) => (
-          <Button
-            onClick={(e: any) => {
-              e.preventDefault();
-              onOptionClick(option);
+    <>
+      <Wrapper>
+        <FlexColumn>
+          {sprint.options.map((option: string) => (
+            <Button
+              onClick={(e: any) => {
+                e.preventDefault();
+                onOptionClick(option);
+              }}
+              key={option}
+            >
+              {option}
+            </Button>
+          ))}
+          {/* end projection and go to the sprint dashboard */}
+          <EndButton
+            onClick={() => {
+              navigate(`/sprints/${sprintId}`, {
+                replace: true,
+              });
             }}
-            key={option}
           >
-            {option}
-          </Button>
-        ))}
-        {/* end projection and go to the sprint dashboard */}
-        <EndButton
-          onClick={() => {
-            navigate(`/sprints/${sprintId}`, {
-              replace: true,
-            });
-          }}
-        >
-          End Projection
-        </EndButton>
-      </FlexColumn>
-    </Wrapper>
+            End Projection
+          </EndButton>
+        </FlexColumn>
+      </Wrapper>
+      <ToastContainer position='bottom-center' autoClose={1000} />
+    </>
   );
 };
 

@@ -9,14 +9,12 @@ import { ClientLoginModal } from '../../components/ClientLoginModal';
 const HomePage = () => {
   const { admin, client } = useAuth();
 
-  //redirect users to register page
   if (!admin) {
-    return <Navigate replace to='/register' />;
+    return <Navigate to='/register' />;
   }
 
-  //redirect users to classroom page
   if (client) {
-    return <Navigate replace to='/classroom' />;
+    return <Navigate to='/classroom' />;
   }
 
   return <ClientLoginModal />;

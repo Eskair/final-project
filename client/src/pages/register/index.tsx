@@ -1,9 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Navigate } from 'react-router-dom';
-
-//utils
-import { auth } from '../../utils/firebase';
 
 //hooks
 import { useInputState } from '../../hooks';
@@ -11,7 +7,6 @@ import { useAuth } from '../../hooks/useAuth';
 
 const RegisterPage = () => {
   const {
-    admin,
     actions: { googleSignin },
   } = useAuth();
 
@@ -26,11 +21,6 @@ const RegisterPage = () => {
     e.preventDefault();
     console.log(userInfo);
   };
-
-  //redirect user to main dashboard when already logged in
-  if (admin) {
-    return <Navigate replace to='/' />;
-  }
 
   return (
     <Center>
@@ -60,7 +50,7 @@ const RegisterPage = () => {
         />
         <Button type='submit'>Submit</Button>
       </Wrapper>
-      <Wrapper>
+      <GoogleWrapper>
         <Button
           onClick={async () => {
             googleSignin && (await googleSignin());
@@ -68,7 +58,7 @@ const RegisterPage = () => {
         >
           Signin with Google
         </Button>
-      </Wrapper>
+      </GoogleWrapper>
     </Center>
   );
 };
@@ -89,6 +79,13 @@ const Wrapper = styled.form`
   flex-direction: column;
   width: 250px;
 `;
+
+const GoogleWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 250px;
+`;
+
 const Input = styled.input`
   outline: none;
   padding: 8px 0;

@@ -2,6 +2,9 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
+//components
+import { Loader } from '../../components';
+
 //hooks
 import { useAuth } from '../../hooks/useAuth';
 import { useFetch } from '../../hooks';
@@ -35,7 +38,7 @@ const ClassroomPage = () => {
   useEffect(() => {
     //refresh sprint data on admin/client change
     setRefetchRequested((p) => !p);
-  }, [admin, client]);
+  }, [admin, client]); // eslint-disable-line
 
   const onStartNewProjection = async (sprintId: string) => {
     // create a new projection doc
@@ -53,13 +56,8 @@ const ClassroomPage = () => {
     }
   };
 
-  //redirect to client login page
-  if (!client) {
-    navigate('/', { replace: true });
-  }
-
   if (loading) {
-    return <div>Loading</div>;
+    return <Loader />;
   }
 
   return (

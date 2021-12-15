@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import styled from 'styled-components';
 import ReactModal from 'react-modal';
 
@@ -56,6 +56,7 @@ export const Modal = ({ children }: any) => {
 const Button = styled.button`
   border: none;
   padding: 5px 10px;
+  margin: 10px 0;
   &:hover {
     cursor: pointer;
   }

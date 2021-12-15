@@ -1,9 +1,4 @@
-import React, {
-  Component,
-  KeyboardEventHandler,
-  useEffect,
-  useState,
-} from 'react';
+import React, { KeyboardEventHandler, useEffect, useState } from 'react';
 
 import CreatableSelect from 'react-select/creatable';
 import { OnChangeValue } from 'react-select';
@@ -47,7 +42,7 @@ export const MultiSelector = ({
     //update options value of sprintInfo
     const updatedOptions = state.value.map((obj) => obj.value);
     setSprintOptions(updatedOptions);
-  }, [state.value]);
+  }, [state.value]); // eslint-disable-line
 
   const { inputValue, value } = state;
   const handleChange = (value: OnChangeValue<Option, true>) => {

@@ -16,7 +16,7 @@ import { FirestoreSchool } from '../../types/Firestore';
 
 //api
 import { createAdmin, getAdmin } from '../../api/admin';
-import { getClient } from '../../api/client';
+import { getClient, createClient } from '../../api/client';
 
 type UserCredential = {
   email: string;
@@ -33,8 +33,8 @@ type AuthContextProps = {
     googleSignin: (() => Promise<void>) | null;
     // signup: ({ email }: UserCredential) => Promise<void>;
     signout: (() => Promise<void>) | null;
-    // setError: React.Dispatch<React.SetStateAction<string>>;
-    updateClient: ((client: string) => Promise<void>) | null;
+    updateClient: ((client: string) => Promise<boolean>) | null;
+    updateAdmin: ((uid: string) => Promise<void>) | null;
   };
 };
 
@@ -47,6 +47,7 @@ const initialState = {
     googleSignin: null,
     signout: null,
     updateClient: null,
+    updateAdmin: null,
   },
 };
 
@@ -127,22 +128,45 @@ export const AuthProvider = ({
   };
 
   const updateAdmin = async (uid: string) => {
+    setLoading(true);
     const admin = await getAdmin(uid);
 
     // update logged in admin
     admin && setAdmin(admin as FirestoreSchool);
+    setLoading(false);
   };
 
   const updateClient = async (client: string) => {
+    setLoading(true);
     const { status, data } = await getClient({
       uid: admin!.uid as string,
       client,
     });
 
+    let success = true;
+
     // update client
-    status === 200 && setClient(data.id);
-    // store the client id on sessionStorage
-    sessionStorage.setItem('client', data.id);
+    if (status === 200) {
+      // client already exists
+      setClient(data.id);
+      // store the client id on sessionStorage
+      sessionStorage.setItem('client', data.id);
+    } else {
+      // client not found
+      // create a new client
+      const { status, data } = await createClient({ uid: admin!.uid, client });
+      if (status === 200) {
+        // client already exists
+        setClient(data.id);
+        // store the client id on sessionStorage
+        sessionStorage.setItem('client', data.id);
+      } else {
+        // server error
+        success = false;
+      }
+    }
+    setLoading(false);
+    return success;
   };
 
   //update user data on auth state change
@@ -171,7 +195,7 @@ export const AuthProvider = ({
         admin,
         client,
         loading,
-        actions: { signin, googleSignin, signout, updateClient },
+        actions: { signin, googleSignin, signout, updateAdmin, updateClient },
       }}
     >
       {children}

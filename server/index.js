@@ -50,6 +50,27 @@ app.post('/api/schools', async (req, res) => {
   }
 });
 
+//update a school doc
+app.patch('/api/schools/:uid', async (req, res) => {
+  const { uid } = req.params;
+  try {
+    //create a new school doc with an id of uid from auth
+    const docRef = db.collection('schools').doc(uid);
+
+    //update props
+    await docRef.update({
+      ...req.body,
+    });
+
+    const data = (await docRef.get()).data();
+
+    res.status(200).json({ status: 200, data, message: 'Admin updated' });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ status: 500, message: 'Server error' });
+  }
+});
+
 //get a classroom doc
 app.get('/api/classrooms/:uid/:client', async (req, res) => {
   const { uid, client } = req.params;
@@ -97,7 +118,10 @@ app.post('/api/classrooms', async (req, res) => {
       name: '',
     });
 
-    res.status(200).json({ status: 200, message: 'Client created' });
+    const newClientDoc = await docRef.get();
+    const data = { ...newClientDoc.data(), id: newClientDoc.id };
+
+    res.status(200).json({ status: 200, data, message: 'Client created' });
   } catch (err) {
     console.log(err);
     res.status(500).json({ status: 500, message: 'Server error' });

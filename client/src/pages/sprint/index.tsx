@@ -3,13 +3,14 @@ import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import { ToastContainer, toast } from 'react-toastify';
 
 //hooks
 import { useAuth } from '../../hooks/useAuth';
 import { useFetch, useInputState } from '../../hooks';
 
 //components
-import { Modal, MultiSelector, LineChart } from '../../components';
+import { Modal, MultiSelector, LineChart, Loader } from '../../components';
 
 //api
 import { updateSprint } from '../../api/sprint';
@@ -42,13 +43,20 @@ const SprintPage = () => {
   useEffect(() => {
     setRefetchRequested((p) => !p);
     projectionRefetch((p) => !p);
-  }, [admin, client]);
+  }, [admin, client]); // eslint-disable-line
 
   useEffect(() => {
-    sprint && setSprintInfo(sprint);
-    setStartDate(new Date(sprintInfo?.start));
-    setEndDate(new Date(sprintInfo?.end));
-  }, [loading, sprint]);
+    if (!loading) {
+      sprint && setSprintInfo(sprint);
+    }
+  }, [loading, sprint]); // eslint-disable-line
+
+  useEffect(() => {
+    if (sprintInfo) {
+      setStartDate(new Date(sprintInfo.start));
+      setEndDate(new Date(sprintInfo.end));
+    }
+  }, [sprintInfo]); // eslint-disable-line
 
   //update options from multiselector
   const setSprintOptions = (options: string[]) => {
@@ -65,20 +73,16 @@ const SprintPage = () => {
       updatedInfo: sprintInfo!,
     });
     if (status === 200) {
-      console.log('updated');
+      toast('Successfully Updated');
+      setRefetchRequested((p) => !p);
     } else {
-      console.log('error');
+      toast('Oops, something went wrong 😈');
     }
   };
 
-  //redirect to client login page
-  if (!client) {
-    navigate('/', { replace: true });
-  }
-
   //wait until fetching both data
-  if (!sprintInfo || !projections) {
-    return <div>Loading</div>;
+  if (!sprintInfo || projectionLoading) {
+    return <Loader />;
   }
 
   return (
@@ -121,12 +125,13 @@ const SprintPage = () => {
               <Button onClick={onClickUpdate}>Update</Button>
             </FlexEnd>
           </Form>
+          <ToastContainer position='bottom-center' autoClose={3000} />
         </Modal>
       </FlexBetween>
       <LineChart
         projections={projections}
-        sprintOptions={sprintInfo.options}
-        title={sprintInfo.title}
+        sprintOptions={sprint.options}
+        title={sprint.title}
       />
     </>
   );

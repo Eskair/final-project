@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 
 //hooks
 import { useAuth } from '../../hooks/useAuth';
@@ -10,12 +10,25 @@ export const Navbar = () => {
     admin,
     actions: { signout },
   } = useAuth();
+  const navigate = useNavigate();
   return (
     <Wrapper>
-      <StyledLink to='/'>Coding Beauty 😈</StyledLink>
+      <StyledLink to='/classroom'>Coding Beauty 😈</StyledLink>
       <div>
         {admin ? (
-          <Button onClick={() => signout && signout()}>SignOut</Button>
+          <NestedWrapper>
+            <StyledLink to='/settings'>
+              👋 {admin.name || 'Click here and set your school name'}
+            </StyledLink>
+            <Button
+              onClick={() => {
+                signout!();
+                navigate('/register', { replace: true });
+              }}
+            >
+              SignOut
+            </Button>
+          </NestedWrapper>
         ) : (
           <StyledLink to='/register'>Register</StyledLink>
         )}
@@ -33,6 +46,12 @@ const Wrapper = styled.div`
   border-bottom: 1px solid black;
 `;
 
+const NestedWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`;
+
 const StyledLink = styled(NavLink)`
   text-decoration: none;
   color: black;
@@ -45,6 +64,7 @@ const StyledLink = styled(NavLink)`
 const Button = styled.button`
   border: none;
   background: none;
+  margin-left: 10px;
   &:hover {
     cursor: pointer;
   }
