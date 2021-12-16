@@ -3,7 +3,7 @@ import { HttpMethods, ApiResponse } from '../../types/Api';
 
 export const getAdmin = async (uid: string) => {
   try {
-    const admin = await fetch(`/api/schools/${uid}`, {
+    const admin = await fetch(`/api/admins/${uid}`, {
       headers: {
         'Content-Type': 'application/json',
       },

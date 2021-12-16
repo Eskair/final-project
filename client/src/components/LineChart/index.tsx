@@ -8,6 +8,7 @@ import {
   Title,
   Tooltip,
   Legend,
+  defaults,
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 
@@ -16,6 +17,8 @@ import { FirestoreProjection } from '../../types/Firestore';
 
 //utils
 import getRandomColor from '../../utils/getRandomColor';
+
+// defaults.font.family = 'Permanent Marker, cursive';
 
 ChartJS.register(
   CategoryScale,

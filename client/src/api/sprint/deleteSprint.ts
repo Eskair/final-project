@@ -2,21 +2,20 @@
 import { SprintApiProps } from '../../types/Firestore';
 import { HttpMethods } from '../../types/Api';
 
-export const updateSprint = async (body: SprintApiProps) => {
-  const { uid, clientId, sprintId, updatedInfo } = body;
+export const deleteSprint = async (body: SprintApiProps) => {
+  const { uid, clientId, sprintId } = body;
   try {
-    const updatedSprint = await fetch(
+    const deletedSprint = await fetch(
       `/api/admins/${uid}/clients/${clientId}/sprints/${sprintId}`,
       {
-        method: HttpMethods.PATCH,
+        method: HttpMethods.DELETE,
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ updatedInfo }),
       }
     );
 
-    return await updatedSprint.json();
+    return await deletedSprint.json();
   } catch (err) {
     console.log(err);
   }

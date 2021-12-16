@@ -13,7 +13,7 @@ import { useFetch, useInputState } from '../../hooks';
 import { Modal, MultiSelector, LineChart, Loader } from '../../components';
 
 //api
-import { updateSprint } from '../../api/sprint';
+import { updateSprint, deleteSprint } from '../../api/sprint';
 
 const SprintPage = () => {
   const navigate = useNavigate();
@@ -24,13 +24,17 @@ const SprintPage = () => {
     loading,
     data: sprint,
     setRefetchRequested,
-  } = useFetch(`/api/sprints/${admin?.uid}/${client}/${sprintId}`);
+  } = useFetch(
+    `/api/admins/${admin?.uid}/clients/${client}/sprints/${sprintId}`
+  );
 
   const {
     loading: projectionLoading,
     data: projections,
     setRefetchRequested: projectionRefetch,
-  } = useFetch(`/api/${admin?.uid}/${client}/${sprintId}/projections`);
+  } = useFetch(
+    `/api/admins/${admin?.uid}/clients/${client}/sprints/${sprintId}/projections`
+  );
 
   const [sprintInfo, handleSprintInfoChange, setSprintInfo] =
     useInputState(null);
@@ -80,6 +84,22 @@ const SprintPage = () => {
     }
   };
 
+  //delete a sprint doc
+  const onClickDelete = async (e: any) => {
+    e.preventDefault();
+    const { status } = await deleteSprint({
+      uid: admin?.uid as string,
+      clientId: client as string,
+      sprintId,
+    });
+
+    if (status === 200) {
+      return navigate('/classroom', { replace: true });
+    } else {
+      toast('Oops, something went wrong 😈');
+    }
+  };
+
   //wait until fetching both data
   if (!sprintInfo || projectionLoading) {
     return <Loader />;
@@ -91,42 +111,47 @@ const SprintPage = () => {
         <Button onClick={() => navigate('/classroom', { replace: true })}>
           Go back to classroom
         </Button>
-        <Modal>
-          {/* sprint info setting */}
-          <Form>
-            <Input
-              required
-              placeholder='Title'
-              name='title'
-              value={sprintInfo.title}
-              onChange={handleSprintInfoChange}
-            />
-            <MultiSelector
-              options={sprintInfo.options}
-              setSprintOptions={setSprintOptions}
-            />
+        <div>
+          <Modal>
+            {/* sprint info setting */}
+            <Form>
+              <Input
+                required
+                placeholder='Title'
+                name='title'
+                value={sprintInfo.title}
+                onChange={handleSprintInfoChange}
+              />
+              <MultiSelector
+                options={sprintInfo.options}
+                setSprintOptions={setSprintOptions}
+              />
 
-            <DatePicker
-              selected={startDate}
-              onChange={(date: Date) => {
-                setStartDate(date);
-                setSprintInfo({ ...sprintInfo, start: date.toDateString() });
-              }}
-            />
-            <DatePicker
-              selected={endDate}
-              onChange={(date: Date) => {
-                setEndDate(date);
-                setSprintInfo({ ...sprintInfo, end: date.toDateString() });
-              }}
-            />
+              <DatePicker
+                selected={startDate}
+                onChange={(date: Date) => {
+                  setStartDate(date);
+                  setSprintInfo({ ...sprintInfo, start: date.toDateString() });
+                }}
+              />
+              <DatePicker
+                selected={endDate}
+                onChange={(date: Date) => {
+                  setEndDate(date);
+                  setSprintInfo({ ...sprintInfo, end: date.toDateString() });
+                }}
+              />
 
-            <FlexEnd>
-              <Button onClick={onClickUpdate}>Update</Button>
-            </FlexEnd>
-          </Form>
-          <ToastContainer position='bottom-center' autoClose={3000} />
-        </Modal>
+              <FlexEnd>
+                <Button onClick={onClickUpdate}>Update</Button>
+              </FlexEnd>
+            </Form>
+            <ToastContainer position='bottom-center' autoClose={3000} />
+          </Modal>
+          <Button style={{ marginLeft: '10px' }} onClick={onClickDelete}>
+            Delete
+          </Button>
+        </div>
       </FlexBetween>
       <LineChart
         projections={projections}
@@ -157,6 +182,7 @@ const Button = styled.button`
   border: none;
   padding: 5px 10px;
   margin: 10px 0;
+  font-family: 'Permanent Marker', cursive;
   &:hover {
     cursor: pointer;
   }

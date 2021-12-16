@@ -1,65 +1,72 @@
 import React from 'react';
 import styled from 'styled-components';
+import { ToastContainer, toast } from 'react-toastify';
 
 //hooks
 import { useInputState } from '../../hooks';
 import { useAuth } from '../../hooks/useAuth';
 
+//types
+import { UserCredential } from '../../types/Auth';
+
 const RegisterPage = () => {
   const {
-    actions: { googleSignin },
+    actions: { googleSignin, signup },
   } = useAuth();
 
   const initialVal = {
     email: '',
     password: '',
-    code: '',
   };
   const [userInfo, handleUserInfoChange] = useInputState(initialVal);
 
-  const handleOnSubmit = (e: React.FormEvent<EventTarget>) => {
+  const handleOnSubmit = async (e: React.FormEvent<EventTarget>) => {
     e.preventDefault();
-    console.log(userInfo);
+    const { success, message } = await signup!(userInfo as UserCredential);
+
+    //c'est dommage, unknown error occurred
+    if (!success) {
+      toast(message);
+    }
   };
 
   return (
-    <Center>
-      <Wrapper onSubmit={handleOnSubmit}>
-        <Input
-          onChange={handleUserInfoChange}
-          placeholder='Email'
-          type='email'
-          required
-          name='email'
-          value={userInfo?.email}
-        />
-        <Input
-          onChange={handleUserInfoChange}
-          placeholder='Password'
-          type='password'
-          required
-          name='password'
-          value={userInfo?.password}
-        />
-        <Input
-          onChange={handleUserInfoChange}
-          placeholder='School code'
-          required
-          name='code'
-          value={userInfo?.code}
-        />
-        <Button type='submit'>Submit</Button>
-      </Wrapper>
-      <GoogleWrapper>
-        <Button
-          onClick={async () => {
-            googleSignin && (await googleSignin());
-          }}
-        >
-          Signin with Google
-        </Button>
-      </GoogleWrapper>
-    </Center>
+    <>
+      <Center>
+        <Border>
+          <Title>Register</Title>
+          <Wrapper onSubmit={handleOnSubmit}>
+            <Input
+              onChange={handleUserInfoChange}
+              placeholder='Email'
+              type='email'
+              required
+              name='email'
+              value={userInfo?.email}
+            />
+            <Input
+              onChange={handleUserInfoChange}
+              placeholder='Password'
+              type='password'
+              required
+              name='password'
+              value={userInfo?.password}
+            />
+            <Button type='submit'>Submit</Button>
+          </Wrapper>
+          <GoogleWrapper>
+            <Button
+              onClick={async () => {
+                googleSignin && (await googleSignin());
+              }}
+            >
+              Signin with Google
+            </Button>
+          </GoogleWrapper>
+        </Border>
+      </Center>
+      <ToastContainer position='bottom-center' autoClose={5000} />
+    </>
   );
 };
 
@@ -74,6 +81,13 @@ const Center = styled.div`
   align-items: center;
   flex-direction: column;
 `;
+
+const Border = styled.div`
+  box-shadow: rgba(0, 0, 0, 0.3) 0px 19px 38px,
+    rgba(0, 0, 0, 0.22) 0px 15px 12px;
+  padding: 30px;
+`;
+
 const Wrapper = styled.form`
   display: flex;
   flex-direction: column;
@@ -84,6 +98,8 @@ const GoogleWrapper = styled.div`
   display: flex;
   flex-direction: column;
   width: 250px;
+  padding-top: 10px;
+  border-top: 1px solid #ddd;
 `;
 
 const Input = styled.input`
@@ -91,12 +107,20 @@ const Input = styled.input`
   padding: 8px 0;
   margin-bottom: 5px;
 `;
+
 const Button = styled.button`
   border: none;
   padding: 10px 5px;
   border-radius: 5px;
   margin-bottom: 10px;
+  font-family: 'Permanent Marker', cursive;
   &:hover {
     cursor: pointer;
   }
+`;
+
+const Title = styled.div`
+  font-size: 20px;
+  text-align: center;
+  margin-bottom: 20px;
 `;

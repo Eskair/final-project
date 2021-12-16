@@ -76,6 +76,7 @@ const Button = styled.button`
   border: none;
   padding: 10px 5px;
   border-radius: 5px;
+  font-family: 'Permanent Marker', cursive;
   &:hover {
     cursor: pointer;
   }

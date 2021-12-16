@@ -24,7 +24,7 @@ const ClassroomPage = () => {
     loading,
     data: sprints,
     setRefetchRequested,
-  } = useFetch(`/api/sprints/${admin?.uid}/${client}`);
+  } = useFetch(`/api/admins/${admin?.uid}/clients/${client}/sprints`);
 
   const onAddSprint = async () => {
     const { status } = await createSprint({
@@ -104,6 +104,7 @@ const FlexColumn = styled.div`
 const Button = styled.button`
   border: none;
   padding: 5px 10px;
+  font-family: 'Permanent Marker', cursive;
   &:hover {
     cursor: pointer;
   }
@@ -112,6 +113,8 @@ const Button = styled.button`
 const CardWrapper = styled.div`
   display: flex;
   flex-wrap: wrap;
+  align-items: stretch;
+  justify-content: center;
 `;
 
 const Link = styled.a`
@@ -121,6 +124,7 @@ const Link = styled.a`
   display: inline-block;
   background: teal;
   text-align: center;
+  margin-bottom: 10px;
   &:hover {
     cursor: pointer;
   }
@@ -128,13 +132,14 @@ const Link = styled.a`
 
 const Card = styled.div`
   padding: 20px;
-  border: 2px solid grey;
+  /* border: 2px solid grey; */
   margin: 10px;
   width: 150px;
-  height: 120px;
+  height: 180px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  box-shadow: rgba(0, 0, 0, 0.25) 0px 25px 50px -12px;
 `;
 
 export default ClassroomPage;

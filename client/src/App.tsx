@@ -14,20 +14,23 @@ import SettingsPage from './pages/settings';
 import { useAuth } from './hooks/useAuth';
 
 //component
-import { MainLayout, Loader } from './components';
+import { MainLayout } from './components';
 
 function App() {
   const { admin, client, loading } = useAuth();
 
   if (loading) {
-    return <Loader />;
+    return <></>;
   }
 
   return (
     <BrowserRouter>
       <MainLayout>
         <Routes>
-          <Route path='/login' element={<LoginPage />} />
+          <Route
+            path='/login'
+            element={admin ? <Navigate to='/' /> : <LoginPage />}
+          />
           <Route
             path='/register'
             element={admin ? <Navigate to='/' /> : <RegisterPage />}

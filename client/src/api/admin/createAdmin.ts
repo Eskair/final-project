@@ -3,7 +3,7 @@ import { FirestoreSchool } from '../../types/Firestore';
 import { HttpMethods } from '../../types/Api';
 
 export const createAdmin = async (body: FirestoreSchool) => {
-  const newSchool = await fetch(`/api/schools`, {
+  const newSchool = await fetch(`/api/admins`, {
     method: HttpMethods.POST,
     headers: {
       'Content-Type': 'application/json',

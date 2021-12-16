@@ -6,7 +6,7 @@ export const updateProjection = async (body: ProjectionApiProps) => {
   const { uid, clientId, sprintId, projectionId, clicked } = body;
   try {
     const updatedProjection = await fetch(
-      `/api/sprints/${uid}/${clientId}/${sprintId}/${projectionId}`,
+      `/api/admins/${uid}/clients/${clientId}/sprints/${sprintId}/projections/${projectionId}`,
       {
         method: HttpMethods.PATCH,
         headers: {

@@ -5,7 +5,7 @@ import { HttpMethods } from '../../types/Api';
 export const updateAdmin = async (body: FirestoreSchool) => {
   const { uid, ...rest } = body;
 
-  const updatedAdmin = await fetch(`/api/schools/${uid}`, {
+  const updatedAdmin = await fetch(`/api/admins/${uid}`, {
     method: HttpMethods.PATCH,
     headers: {
       'Content-Type': 'application/json',

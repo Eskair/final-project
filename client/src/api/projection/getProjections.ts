@@ -6,7 +6,7 @@ export const getProjections = async (body: ProjectionApiProps) => {
   const { uid, clientId, sprintId } = body;
 
   const projectionDocs = await fetch(
-    `/api/${uid}/${clientId}/${sprintId}/projections`,
+    `/api/admins/${uid}/clients/${clientId}/sprints/${sprintId}/projections`,
     {
       headers: {
         'Content-Type': 'application/json',

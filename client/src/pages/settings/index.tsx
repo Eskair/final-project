@@ -49,26 +49,29 @@ const SettingsPage = () => {
   return (
     <>
       <Center>
-        <Wrapper onSubmit={handleOnSubmit}>
-          <Title>Your School Information</Title>
-          <Input
-            onChange={handleAdminInfoChange}
-            placeholder='Admin Email Address'
-            type='email'
-            required
-            name='admin'
-            value={adminInfo?.admin}
-            disabled
-          />
-          <Input
-            onChange={handleAdminInfoChange}
-            placeholder='School Name'
-            required
-            name='name'
-            value={adminInfo?.name}
-          />
-          <Button type='submit'>Update</Button>
-        </Wrapper>
+        <Border>
+          <Wrapper onSubmit={handleOnSubmit}>
+            <Title>Your School Information</Title>
+            <Input
+              onChange={handleAdminInfoChange}
+              placeholder='Admin Email Address'
+              type='email'
+              required
+              name='admin'
+              value={adminInfo?.admin}
+              disabled
+            />
+            <Input
+              onChange={handleAdminInfoChange}
+              placeholder='School Name'
+              required
+              name='name'
+              value={adminInfo?.name}
+              autoFocus
+            />
+            <Button type='submit'>Update</Button>
+          </Wrapper>
+        </Border>
       </Center>
       <ToastContainer position='bottom-center' autoClose={3000} />
     </>
@@ -111,7 +114,14 @@ const Button = styled.button`
   padding: 10px 5px;
   border-radius: 5px;
   margin-bottom: 10px;
+  font-family: 'Permanent Marker', cursive;
   &:hover {
     cursor: pointer;
   }
+`;
+
+const Border = styled.div`
+  box-shadow: rgba(0, 0, 0, 0.3) 0px 19px 38px,
+    rgba(0, 0, 0, 0.22) 0px 15px 12px;
+  padding: 30px;
 `;

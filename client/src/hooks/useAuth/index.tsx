@@ -1,26 +1,24 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import {
-  sendSignInLinkToEmail,
+  signInWithEmailAndPassword,
   signOut,
   GoogleAuthProvider,
   signInWithPopup,
   onAuthStateChanged,
+  createUserWithEmailAndPassword,
 } from 'firebase/auth';
 import { getDocs, collection, query, where } from 'firebase/firestore';
 
 //from firebase config
-import { auth, actionCodeSettings, db } from '../../utils/firebase';
+import { auth, db } from '../../utils/firebase';
 
 //type
 import { FirestoreSchool } from '../../types/Firestore';
+import { UserCredential } from '../../types/Auth';
 
 //api
 import { createAdmin, getAdmin } from '../../api/admin';
 import { getClient, createClient } from '../../api/client';
-
-type UserCredential = {
-  email: string;
-};
 
 type AuthContextProps = {
   // school info
@@ -29,9 +27,19 @@ type AuthContextProps = {
   client: string | null;
   loading: boolean;
   actions: {
-    signin: (({ email }: UserCredential) => Promise<void>) | null;
+    signup:
+      | (({ email, password }: UserCredential) => Promise<{
+          success: boolean;
+          message: string;
+        }>)
+      | null;
     googleSignin: (() => Promise<void>) | null;
-    // signup: ({ email }: UserCredential) => Promise<void>;
+    signin:
+      | (({ email, password }: UserCredential) => Promise<{
+          success: boolean;
+          message: string;
+        }>)
+      | null;
     signout: (() => Promise<void>) | null;
     updateClient: ((client: string) => Promise<boolean>) | null;
     updateAdmin: ((uid: string) => Promise<void>) | null;
@@ -43,6 +51,7 @@ const initialState = {
   client: null,
   loading: false,
   actions: {
+    signup: null,
     signin: null,
     googleSignin: null,
     signout: null,
@@ -69,14 +78,50 @@ export const AuthProvider = ({
   const [loading, setLoading] = useState(false);
 
   //actions
-  const signin = async ({ email }: UserCredential) => {
+  const signup = async ({ email, password }: UserCredential) => {
     try {
       setLoading(true);
-      await sendSignInLinkToEmail(auth, email, actionCodeSettings);
-      //store email address for later use
-      window.localStorage.setItem('emailForSignIn', email);
+      const isAlreadyRegistered = await isAdminRegistered(email);
+      if (isAlreadyRegistered) {
+        return { success: false, message: 'Already registered' };
+      }
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const uid = userCredential.user.uid;
+      const body = {
+        uid,
+        admin: email || '',
+      };
+
+      await createAdmin(body);
+      await updateAdmin(uid);
+      return { success: true, message: 'successfully registered' };
     } catch (err) {
       console.log(err);
+      return { success: false, message: 'Unknown error occurred' };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const signin = async ({ email, password }: UserCredential) => {
+    try {
+      setLoading(true);
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+
+      userCredential.user && (await updateAdmin(userCredential.user.uid));
+
+      return { success: true, message: 'successfully registered' };
+    } catch (err) {
+      console.log(err);
+      return { success: false, message: 'Not registered yet!' };
     } finally {
       setLoading(false);
     }
@@ -88,18 +133,11 @@ export const AuthProvider = ({
       setLoading(true);
       const result = await signInWithPopup(auth, provider);
       // The signed-in admin info.
-      const { uid, displayName: name, email } = result.user;
+      const { uid, email } = result.user;
 
-      //check if the admin has already registered
-      const schoolsRef = collection(db, 'schools');
-      const q = query(schoolsRef, where('admin', '==', email));
-      const querySnapshot = await getDocs(q);
+      const isAlreadyRegistered = await isAdminRegistered(email);
 
-      //user doesn't exists
-      if (!querySnapshot.size) {
-        //new register
-        //create new school doc
-        //create school api
+      if (!isAlreadyRegistered) {
         const body = {
           uid,
           admin: email || '',
@@ -108,12 +146,21 @@ export const AuthProvider = ({
       }
 
       //update admin status
-      updateAdmin(uid);
+      await updateAdmin(uid);
     } catch (err) {
       console.log(err);
     } finally {
       setLoading(false);
     }
+  };
+
+  const isAdminRegistered = async (email: string | null) => {
+    //check if the admin has already registered
+    const schoolsRef = collection(db, 'schools');
+    const q = query(schoolsRef, where('admin', '==', email));
+    const querySnapshot = await getDocs(q);
+
+    return querySnapshot.size;
   };
 
   const signout = async () => {
@@ -185,9 +232,8 @@ export const AuthProvider = ({
       setLoading(false);
     });
 
-    // cleanup subscription on unmount
     return unsubscribe;
-  }, []);
+  }, []); // eslint-disable-line
 
   return (
     <authContext.Provider
@@ -195,7 +241,14 @@ export const AuthProvider = ({
         admin,
         client,
         loading,
-        actions: { signin, googleSignin, signout, updateAdmin, updateClient },
+        actions: {
+          signup,
+          signin,
+          googleSignin,
+          signout,
+          updateAdmin,
+          updateClient,
+        },
       }}
     >
       {children}

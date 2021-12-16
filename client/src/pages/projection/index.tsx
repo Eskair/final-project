@@ -20,11 +20,9 @@ const ProjectionPage = () => {
 
   const { admin, client } = useAuth();
 
-  const {
-    loading,
-    data: sprint,
-    setRefetchRequested,
-  } = useFetch(`/api/sprints/${admin?.uid}/${client}/${sprintId}`);
+  const { data: sprint, setRefetchRequested } = useFetch(
+    `/api/admins/${admin?.uid}/clients/${client}/sprints/${sprintId}`
+  );
 
   useEffect(() => {
     setRefetchRequested((p) => !p);
@@ -44,13 +42,14 @@ const ProjectionPage = () => {
     }
   };
 
-  if (!sprint || loading) {
+  if (!sprint) {
     return <Loader />;
   }
 
   return (
     <>
       <Wrapper>
+        <Title>{sprint.title}</Title>
         <FlexColumn>
           {sprint.options.map((option: string) => (
             <Button
@@ -83,7 +82,7 @@ const ProjectionPage = () => {
 //styled
 const Wrapper = styled.div`
   position: absolute;
-  top: 50%;
+  top: 40%;
   left: 50%;
   right: auto;
   bottom: auto;
@@ -102,6 +101,10 @@ const Button = styled.button`
   border: none;
   padding: 20px 10px;
   margin: 10px 0;
+  font-family: 'Permanent Marker', cursive;
+  box-shadow: rgba(0, 0, 0, 0.2) 0px 12px 28px 0px,
+    rgba(0, 0, 0, 0.1) 0px 2px 4px 0px,
+    rgba(255, 255, 255, 0.05) 0px 0px 0px 1px inset;
   &:hover {
     cursor: pointer;
   }
@@ -112,7 +115,7 @@ const EndButton = styled.button`
   padding: 10px 10px;
   margin: 10px 0;
   color: white;
-
+  font-family: 'Permanent Marker', cursive;
   background: #77a1d3; /* fallback for old browsers */
   background: -webkit-linear-gradient(
     to right,
@@ -130,6 +133,12 @@ const EndButton = styled.button`
   &:hover {
     cursor: pointer;
   }
+`;
+
+const Title = styled.div`
+  font-size: 20px;
+  text-align: center;
+  margin-bottom: 20px;
 `;
 
 export default ProjectionPage;

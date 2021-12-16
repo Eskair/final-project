@@ -10,10 +10,6 @@ export const Modal = ({ children }: any) => {
     setIsOpen(true);
   };
 
-  const afterOpenModal = () => {
-    // references are now sync'd and can be accessed.
-  };
-
   const closeModal = () => {
     setIsOpen(false);
   };
@@ -36,7 +32,6 @@ export const Modal = ({ children }: any) => {
       <Button onClick={openModal}>Settings</Button>
       <ReactModal
         isOpen={modalIsOpen}
-        onAfterOpen={afterOpenModal}
         onRequestClose={closeModal}
         contentLabel='Modal'
         style={customStyles}
@@ -57,6 +52,7 @@ const Button = styled.button`
   border: none;
   padding: 5px 10px;
   margin: 10px 0;
+  font-family: 'Permanent Marker', cursive;
   &:hover {
     cursor: pointer;
   }
