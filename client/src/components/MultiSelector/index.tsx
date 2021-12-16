@@ -73,7 +73,7 @@ export const MultiSelector = ({
         borderRadius: 0,
         colors: {
           ...theme.colors,
-          primary: 'pink',
+          primary: 'dodgerblue',
         },
       })}
       components={components}

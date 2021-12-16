@@ -174,7 +174,7 @@ const Input = styled.input`
   outline: none;
   border: 1px solid darkgray;
   &:focus {
-    border: 2px solid pink;
+    border: 2px solid dodgerblue;
   }
 `;
 

@@ -28,6 +28,8 @@ const LoginPage = () => {
     e.preventDefault();
     const { success, message } = await signin!(userInfo as UserCredential);
 
+    console.log(success);
+
     //c'est dommage, unknown error occurred
     if (!success) {
       toast(message);

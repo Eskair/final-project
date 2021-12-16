@@ -13,12 +13,14 @@ export const Navbar = () => {
   const navigate = useNavigate();
   return (
     <Wrapper>
-      <StyledLink to='/'>Coding Beauty 😈</StyledLink>
+      <StyledLink to='/'>{admin?.name || '${projectName}'}</StyledLink>
       <div>
         {admin ? (
           <NestedWrapper>
             <StyledLink to='/settings'>
-              👋 {admin.name || 'Click here and set your school name'}
+              {admin?.name
+                ? 'setting'
+                : '👋 Click here and set your school name'}
             </StyledLink>
             <Button
               onClick={() => {
